@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truth or Dare: After Dark</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-zinc-950 via-neutral-900 to-rose-950 text-neutral-100 min-h-screen flex flex-col items-center justify-between p-4 font-sans select-none">
+
+    <!-- Header -->
+    <header class="w-full max-w-md text-center py-4">
+        <h1 class="text-3xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-red-500">
+            AFTER DARK 🔥
+        </h1>
+        <p class="text-xs text-neutral-400 tracking-widest uppercase mt-1">Turn up the heat</p>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="w-full max-w-md flex flex-col items-center flex-grow justify-center my-4">
+        
+        <!-- Intensity Selector -->
+        <div class="flex gap-2 mb-6 w-full px-2">
+            <button onclick="setMode('flirty')" id="btn-flirty" class="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-300 transition-all shadow-lg shadow-rose-950/50">
+                Flirty 💋
+            </button>
+            <button onclick="setMode('spicy')" id="btn-spicy" class="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all">
+                Spicy 🌶️
+            </button>
+            <button onclick="setMode('wild')" id="btn-wild" class="flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all">
+                Wild 🔥
+            </button>
+        </div>
+
+        <!-- 3D Card Container -->
+        <div class="w-full px-2 perspective-1000 h-72 cursor-pointer" onclick="flipCard()">
+            <div id="card" class="relative w-full h-full duration-500 transform-style-3d shadow-2xl rounded-2xl">
+                
+                <!-- Card Front -->
+                <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl flex flex-col items-center justify-center p-6 text-center backface-hidden shadow-inner">
+                    <span class="text-rose-500 text-4xl mb-3">✨</span>
+                    <h2 class="text-xl font-bold tracking-wide text-neutral-200">Tap to Reveal</h2>
+                    <p class="text-sm text-neutral-500 mt-2">Choose Truth or Dare</p>
+                </div>
+
+                <!-- Card Back -->
+                <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-rose-950/80 via-neutral-900 to-neutral-950 border border-rose-500/30 rounded-2xl flex flex-col items-center justify-between p-6 text-center backface-hidden rotate-y-180">
+                    <span id="card-type" class="text-xs font-bold uppercase tracking-widest text-rose-400 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-800/40">Truth</span>
+                    <p id="card-prompt" class="text-lg font-medium text-neutral-100 px-2 my-auto leading-relaxed">Loading prompt...</p>
+                    <span class="text-xs text-neutral-500 tracking-wider">Tap for next card</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Choice Buttons -->
+        <div class="flex gap-4 w-full px-2 mt-8">
+            <button onclick="drawPrompt('truth')" class="flex-1 py-4 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-2xl font-bold text-sm tracking-wider text-neutral-300 transition-all active:scale-95 shadow-lg">
+                TRUTH
+            </button>
+            <button onclick="drawPrompt('dare')" class="flex-1 py-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 rounded-2xl font-bold text-sm tracking-wider text-white transition-all active:scale-95 shadow-lg shadow-rose-950/50">
+                DARE
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-md text-center py-2 text-neutral-600 text-xs">
+        Tap card or choose below to play
+    </footer>
+
+    <!-- Game Logic Script -->
+    <script>
+        const database = {
+            flirty: {
+                truth: [
+                    "What was your absolute first impression of me?",
+                    "What is the most attractive physical feature a person can have?",
+                    "Where is the most romantic place you've ever imagined going on a date?",
+                    "What song instantly puts you in a romantic or flirty mood?",
+                    "What is your ultimate definition of a perfect night in?"
+                ],
+                dare: [
+                    "Whisper your absolute favorite secret into the nearest person's ear.",
+                    "Stare deeply into someone's eyes without smiling or talking for 30 seconds.",
+                    "Send a text to your crush or partner using only emojis describing how you feel right now.",
+                    "Compliment the person to your left in the most poetic, dramatic way possible.",
+                    "Do your best runway walk across the room."
+                ]
+            },
+            spicy: {
+                truth: [
+                    "What is your ultimate guilty pleasure when it comes to romance?",
+                    "Have you ever had a sudden, intense daydream about someone in this room?",
+                    "What is the most daring pickup line you've ever used or heard?",
+                    "What physical touch or gesture instantly melts your defenses?",
+                    "What is a fantasy you've never shared with anyone before?"
+                ],
+                dare: [
+                    "Let someone trace a pattern on the back of your hand with their fingertip.",
+                    "Give a 60-second back or shoulder massage to the player of your choice.",
+                    "Speak in a sultry whisper for the next three rounds.",
+                    "Imitate your favorite romantic movie confession scene with maximum drama.",
+                    "Close your eyes and let someone feed you a surprise snack or drink."
+                ]
+            },
+            wild: {
+                truth: [
+                    "What is the wildest, most spontaneous thing you've ever done for love or lust?",
+                    "What is your biggest unspoken temptation right now?",
+                    "If you could teleport to any private location with one person right this second, where would you go?",
+                    "What is a boundary you used to have that you completely love breaking?",
+                    "What is the most intense chemistry you've ever felt with a stranger?"
+                ],
+                dare: [
+                    "Maintain uninterrupted eye contact with the player opposite you while they ask you a personal question.",
+                    "Trade a piece of clothing (like a jacket or accessory) with someone for the rest of the game.",
+                    "Perform a slow, exaggerated dramatic pose every time someone speaks for the next two rounds.",
+                    "Let the group choose a custom, cheeky challenge you must complete right now.",
+                    "Whisper something completely unfiltered and bold to the person next to you."
+                ]
+            }
+        };
+
+        let currentMode = 'flirty';
+        let currentType = 'truth';
+        let isFlipped = false;
+
+        function setMode(mode) {
+            currentMode = mode;
+            ['flirty', 'spicy', 'wild'].forEach(m => {
+                const btn = document.getElementById(`btn-${m}`);
+                if (m === mode) {
+                    btn.className = "flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-300 transition-all shadow-lg shadow-rose-950/50";
+                } else {
+                    btn.className = "flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all";
+                }
+            });
+            drawPrompt('truth');
+        }
+
+        function drawPrompt(type) {
+            currentType = type;
+            const list = database[currentMode][type];
+            const randomPrompt = list[Math.floor(Math.random() * list.length)];
+
+            document.getElementById('card-type').innerText = `${currentMode.toUpperCase()} • ${type.toUpperCase()}`;
+            document.getElementById('card-prompt').innerText = randomPrompt;
+
+            const card = document.getElementById('card');
+            if (!isFlipped) {
+                card.style.transform = 'rotateY(180deg)';
+                isFlipped = true;
+            }
+        }
+
+        function flipCard() {
+            const card = document.getElementById('card');
+            if (isFlipped) {
+                card.style.transform = 'rotateY(0deg)';
+                isFlipped = false;
+            } else {
+                drawPrompt(currentType);
+            }
+        }
+    </script>
+</body>
+</html>
